@@ -41,7 +41,6 @@
                 console.log(tab, event);
             },
             goBack() {
-                console.log(1);
                 this.$router.go(-1);
             }
         }
