@@ -1,0 +1,409 @@
+﻿  //获取本地信息
+    function GetLoginInformation(params) {
+
+        if (!localStorage.getItem('userInfoTxt')) {
+            var userName = $.cookie("localusername");
+            var userPassword = $.cookie("localpassword");
+
+                        $.ajax({
+                            type: 'post',
+                            dataType: 'json',
+                            url: '../Mobile_Teacher/Action/IndexHandler.ashx?action=login&password=' + userPassword,
+                            data: { username: userName, password: userPassword },
+                            success: function (data) {
+
+                                if (data.StatusCode == 1) {
+                                    var userInfo = data.Result[0]   //json用户信息
+                                    var userInfoTxt = JSON.stringify(userInfo) //txt用户信息
+                                    localStorage.setItem('userInfoTxt', userInfoTxt);
+
+                                }
+                                
+                            }
+                        });
+            //window.location.href ="http://www.51weixiao.net/weschool/login.aspx";
+        }
+        else {
+
+          
+        }
+
+        var str = JSON.parse(localStorage.getItem('userInfoTxt'));
+        return str[params];
+    }
+
+    $(document).on("mousewheel", "input[type='number']", function () {
+        return false;
+    });
+    // 返回月份
+    function GetMonth(num) {
+        var myDate = new Date()
+        var myYear = myDate.getFullYear()
+        var myMonth = myDate.getMonth() + 1 + num;
+        if (myMonth > 12) {
+            return (myYear + 1) + "-" + (myMonth - 12) + "-01"
+        } else if (myMonth <= 0) {
+            return (myYear - 1) + "-" + (myMonth + 12) + "-01"
+        } else {
+            return myYear + "-" + myMonth + "-01"
+        }
+    }
+
+    function banBackSpace(e) {
+        var ev = e || window.event;
+        //各种浏览器下获取事件对象
+        var obj = ev.relatedTarget || ev.srcElement || ev.target || ev.currentTarget;
+        //按下Backspace键
+        if (ev.keyCode == 8) {
+            var tagName = obj.nodeName //标签名称
+            //如果标签不是input或者textarea则阻止Backspace
+            if (tagName != 'INPUT' && tagName != 'TEXTAREA') {
+                return stopIt(ev);
+            }
+            var tagType = obj.type.toUpperCase(); //标签类型
+            //input标签除了下面几种类型，全部阻止Backspace
+            if (tagName == 'INPUT' && (tagType != 'NUMBER' && tagType != 'TEXT' && tagType != 'TEXTAREA' && tagType != 'PASSWORD' && tagType != 'SEARCH')) {
+                return stopIt(ev);
+            }
+            //input或者textarea输入框如果不可编辑则阻止Backspace
+            if ((tagName == 'INPUT' || tagName == 'TEXTAREA') && (obj.readOnly == true || obj.disabled == true)) {
+                return stopIt(ev);
+            }
+        }
+    }
+    function stopIt(ev) {
+        if (ev.preventDefault) {
+            //preventDefault()方法阻止元素发生默认的行为
+            ev.preventDefault();
+        }
+        if (ev.returnValue) {
+            //IE浏览器下用window.event.returnValue = false;实现阻止元素发生默认的行为
+            ev.returnValue = false;
+        }
+        return false;
+    }
+
+    $(function () {
+        //实现对字符码的截获，keypress中屏蔽了这些功能按键
+        document.onkeypress = banBackSpace;
+        //对功能按键的获取
+        document.onkeydown = banBackSpace;
+    })
+
+
+$(function () {
+    //屏蔽F12和右键菜单
+    //disabledF12andContextmenu();
+    // 导航
+    allNav();
+    // 吃豆子
+    loading_animate();
+    //初始化头像导航
+    // init_photo_nav();
+    // iCheck
+    if_icheck();
+    //提示tooltip
+    toolTip_init();
+    // 日期选择器
+    datepicker();
+    //layer自定义皮肤
+    layerSkin_init();
+    //导出模板是否禁用选择日期
+    export_init();
+    // 禁用按钮阻止事件
+    mybutton_off();
+    //sideline_nav导航条动画
+    initSideline_nav();
+
+
+    //加载人物下拉条
+    var WLO = window.location.origin;
+
+    var imgUrl = GetLoginInformation("Pic_Url");
+
+    var Pic_Url = "";
+    if (imgUrl != "" && imgUrl != undefined && imgUrl != "null") {
+        Pic_Url = WLO + "/" + imgUrl.replace("../", "");
+    }
+
+    var RealName = GetLoginInformation("RealName");
+    var IsRector = GetLoginInformation("IsRector");
+
+    var zhanghaoguanli = WLO + "/WeSchool/MyInfo/Accout.aspx";
+    var HeadmasterDesk = WLO + "/WeSchool/MyInfo/HeadmasterDesk.html";
+    var center = WLO + "/WeSchool/TeachingCourse/MyJob/myNote.aspx";
+    var massage = WLO + "/WeSchool/MyInfo/systemMsg.aspx";
+    //var login = WLO + "/weschool/Login.aspx";
+    var login = WLO.indexOf('www') != -1 ? WLO + "/weschool/Login.aspx" : WLO + "/51weixiao/weschool/Login.aspx";
+
+    var IsRectorSTR = "";
+    if (IsRector == "Y") {
+        IsRectorSTR = "<li><a href='" + HeadmasterDesk + "'><i class='fa fa-users pull-right'></i>校长工作台</a></li>";
+    }
+
+    var ImageInfo = "";
+    ImageInfo += "<ul class='nav navbar-nav'>";
+
+    ImageInfo += "    <li class='user-info'>";
+    ImageInfo += "        <a href='javascript:;' class='user-profile dropdown-toggle' data-toggle='dropdown' aria-expanded='false'>";
+    if (imgUrl != "" && imgUrl != undefined && imgUrl != "null") {
+        ImageInfo += "         <img src='" + Pic_Url + "'onerror='this.src=\"../../../51weixiao/Admin/StudentUpLoadImages/defaltPhoto.png\";this.onerror=null' calss='headImg' alt=''/> ";
+    }
+    ImageInfo += "          <span class='userName'> " + RealName + "</span><span class=' fa fa-angle-down'></span>";
+    ImageInfo += "        </a>"; 
+
+    ImageInfo += "         <ul class='dropdown-menu dropdown-usermenu pull-right'>" + IsRectorSTR;
+    ImageInfo += "            <li><a href='" + zhanghaoguanli + "'><i class='fa fa-cog pull-right'></i>账号管理</a></li>";
+    ImageInfo += "            <li><a href='" + center + "'><i class='fa fa-user pull-right'></i>个人中心</a></li>";
+    ImageInfo += "            <li><a href='" + massage + "'><i class='fa fa-envelope  pull-right'></i>消息通知</a></li>";
+    ImageInfo += "            <li><a href='" + login + "'><i class='fa fa-sign-out pull-right' aria-hidden='true'></i>退出系统</a></li>";
+    ImageInfo += "         </ul>";
+    ImageInfo += "    </li>";
+    ImageInfo += "</ul>";
+    $(".top_nav .pull-right").html(ImageInfo);
+
+
+  
+
+
+
+    //    var IMG = '<ul class="nav navbar-nav"><li class="user-info"><a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    //        <img src=" + Pic_Url+`" calss="headImg" alt="">`+ RealName+`
+    //        <span class=" fa fa-angle-down"></span>
+    //      </a>
+    //      <ul class="dropdown-menu dropdown-usermenu pull-right">`+ IsRectorSTR+`
+    //        <li><a href="`+ zhanghaoguanli +`"><i class="fa fa-cog pull-right"></i>账号管理</a></li>
+    //        <li><a href="`+ center +`"><i class="fa fa-user pull-right"></i>个人中心</a></li>
+    //        <li><a href="`+login+`"><i class="fa fa-sign-out pull-right" aria-hidden="true"></i>退出系统</a></li>
+    //      </ul>
+    //    </li>
+    //    </ul>'
+
+
+})
+//// 初始化表格、吃豆子关闭
+$(document).ready(function() {
+    $('.loader').fadeOut(1000);
+    // table初始化
+    //table_init()
+});
+
+
+
+
+
+
+//屏蔽F12和右键菜单
+function disabledF12andContextmenu() {
+    document.oncontextmenu = function () { return false; };
+    document.onkeydown = function () {
+        if (window.event && window.event.keyCode == 123) {
+            event.keyCode = 0;
+            event.returnValue = false;
+            return false;
+        }
+    };
+}
+
+// 导航
+function allNav(){
+    var allNav = '<div id="allNav"></div>';
+    $('body').append(allNav);
+    var html = "";
+    html += '<span class="show-nav-btn"><i class="fa fa-angle-right"></i></span>';
+    html += '<ul>';
+    html += '   <a href="http://www.51weixiao.net/weschool/IndexNav.aspx" id="300"><li>微校首页<span class="fa fa-angle-right pull-right"></span></li></a>';
+    html += '   <a href="http://www.51weixiao.net/weschool/MarketingManage/MarketingManageNav.aspx" id="300"><li>市场营销<span class="fa fa-angle-right pull-right"></span></li></a>';
+    html += '   <a  id="400" ><li>云端测评<span class="fa fa-angle-right pull-right"></span></li></a>';
+    html += '   <a href="http://www.51weixiao.net/weschool/TeachingCourse/TeacherNav.aspx"  id="100"><li>教学中心<span class="fa fa-angle-right pull-right"></span></li></a>';
+    html += '   <a href="http://www.51weixiao.net/WeSchool/SchoolManage/schoolNav.aspx"  id="200"><li>校务管理<span class="fa fa-angle-right pull-right"></span></li></a>';
+    html += '   <a href="http://www.51weixiao.net/weschool/TeacherTraining/teacherTrainingNav.aspx" id="500"><li>师训课程<span class="fa fa-angle-right pull-right"></span></li></a>';
+    html += '</ul>';
+    $('#allNav').html(html);
+    var allNav = $("#allNav");
+    allNav.hover(function () {
+        allNav.addClass("showNav");
+    }, function () {
+        allNav.removeClass("showNav");
+    });
+    
+    //验证是否具有权限
+    var check = $("#allNav a");
+    check.on("click", function (e) {
+        CheckRight(this, e);
+    })
+
+    function CheckRight(obj, e) {
+        $.ajax({
+            type: 'get',
+            url: '/WeSchool/Ashx/Handler.ashx?action=checkRight',
+            data: { subjectId: obj.id },
+            async:false,
+            success: function (result) {
+                if (result == "False") {
+                    alert("您暂时没有该权限!");
+                   e.preventDefault();
+                }
+            },
+            error: function (err) {
+                e.preventDefault();
+            }
+        });
+   }
+}
+
+// 吃豆子
+function loading_animate(){
+    var a = '<div class="loader">'
+            +'<div class="loader-inner pacman">'
+                +'<div></div>'
+                +'<div></div>'
+                +'<div></div>'
+                +'<div></div>'
+                +'<div></div>'
+            +'</div>'
+        +'</div>'
+    $('body').prepend(a);
+}
+
+//初始化头像导航
+// function init_photo_nav() {
+//     //判断登录者身份
+//     $.ajax({
+//         type: 'post',
+//         url: '/51weixiao/Weschool/Ashx/Handler.ashx?action=checkUser',
+//         data: {},
+//         success: function (data) {
+//             var da = eval("(" + data + ")");
+//             var ul = $(".nav .user-info").find("ul");
+//             var list = '<li><a href="' + da.PersonalUrl + '/Accout.aspx"><i class="fa fa-cog pull-right"></i>账号管理</a></li>'
+//             if (da.UserType == "True") {
+//                 list += '<li><a href="' + da.PersonalUrl + '/Report.aspx"><i class="fa fa-user pull-right"></i>我的消息</a></li>';
+//             } 
+//             list += '<li><a href="../WeSchool/LoginOut.aspx"><i class="fa fa-sign-out pull-right"></i>退出系统</a></li>';
+//             ul.html(list);
+//         }
+//     })
+// };
+
+
+// iCheck
+function if_icheck(){
+    if ($('input.flat').length>0) {
+        $('input.flat').iCheck({
+            checkboxClass: 'icheckbox_flat-green',
+            radioClass: 'iradio_flat-green'
+        });
+    };
+}
+//toolTip
+function toolTip_init(){
+	$("[data-toggle='tooltip']").tooltip(); 
+} 
+
+// 日期选择器
+function datepicker(){
+	//单个日期
+    if($('.datepicker').length>0) {
+        $('.datepicker').daterangepicker({
+            singleDatePicker: true
+        }, function(end) {
+            // console.log(end.format('YYYY-MM-DD'));
+        });
+    }
+    //日期范围
+    if($('.reservation').length>0){
+    	if( typeof ($.fn.daterangepicker) === 'undefined'){ return; }
+		console.log('init_daterangepicker_reservation');
+    	$('.reservation').daterangepicker(function(start, end, label) {
+		    console.log(start.toISOString(), end.toISOString(), label);
+		});
+    }
+    //单个日期（精确到时间）
+    if($('.form_datetime').length>0) {
+        $(".form_datetime").datetimepicker({
+            autoclose: true,
+            format: "yyyy-mm-dd hh:ii"
+        });
+    }
+    if (jQuery().datepicker) {
+        $('.date-picker').datepicker({
+            orientation: "left",
+            autoclose: true
+        });
+    }
+}
+
+
+//layer自定义皮肤
+function layerSkin_init(){
+    try{
+            layer.config({
+	            extend: 'custom/style.css', //加载您的扩展样式
+	            skin: 'layer-ext-custom'
+	        }); 
+        }catch(e){
+            console.log("layer未定义")
+        }
+}
+	
+/*导出模板是否禁用选择日期*/
+function export_init(){
+	$('.dataAll').on('ifChanged', function(){ 
+		var dateChoose = $(".dateChoose");
+    	var input = dateChoose.find("input");
+		if($(this).is(':checked')) { 
+	    	input.attr("disabled","disabled");
+	   	} else {
+	   		input.removeAttr("disabled");
+	    }
+	});
+}
+//表格筛选条件展开,收缩
+$('.collapse').on('show.bs.collapse', function () {
+	$(this).siblings(".collapseBtn").html('收起<span class="fa fa-angle-up"></span>');
+}).on('hide.bs.collapse', function () {
+	$(this).siblings(".collapseBtn").html('展开<span class="fa fa-angle-down"></span>');
+})
+
+//自定义选项卡
+if ($('.tab-sp-div').length>0){
+	$('.tab-sp').hide();
+	$('.tab-sp[tab="#tab0"]').show();
+    $(window).resize(function(){
+        $('.tab-sp').width($('.table-container').width()-40);
+	    ($('.tab-sp').outerHeight()<130) ? $('.table-container-sp').css('padding-bottom',130) : $('.table-container-sp').css('padding-bottom',$('.tab-sp').outerHeight());
+    })
+	$('.tab-sp').width($('.table-container').width()-40);
+	($('.tab-sp').outerHeight()<130) ? $('.table-container-sp').css('padding-bottom',130) : $('.table-container-sp').css('padding-bottom',$('.tab-sp').outerHeight());
+	$('.tab-sp-div').find('a[data-toggle="tab"]').click(function(){
+		// console.log(this)
+		var a = $(this).attr('href');
+		$('.tab-sp').fadeOut(100);
+		$('.tab-sp[tab="'+a+'"]').fadeIn(100);
+	});
+}
+	
+// 禁用按钮阻止事件
+function mybutton_off(){
+    $('body').on('click','.mybutton-off',function(e){
+        e.preventDefault(); 
+    });
+}
+
+//sideline_nav导航条动画
+function initSideline_nav(){
+	if($(".sideline_nav").length){
+		var firstLi_w = $(".sideline_nav li").first().width();
+		console.log(firstLi_w);
+		$(".sideline").width(firstLi_w);
+		$('.sideline_nav a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+		    /*点击li的宽度*/
+		    li_w = $(".sideline_nav li.active").width();
+		    $('.sideline').stop(true);
+		    $('.sideline').animate({ left: $(".sideline_nav li.active").position().left }, 300);
+		    $('.sideline').animate({ width: li_w });
+		});
+	}
+}
+
