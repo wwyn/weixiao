@@ -38,7 +38,7 @@
         </div>
         <div id="allNav" :class="showNav? 'showNav':''">
             <span class="show-nav-btn" @click="ShowNav">
-                <i class="fa fa-angle-right"></i>
+                <i class="fa"></i>
             </span>
             <ul>   
                 <router-link to="">
@@ -209,10 +209,6 @@
         text-rendering: auto;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-    }
-    
-    .fa-angle-right:before {
-        content: "\f105";
     }
     
     ul {
